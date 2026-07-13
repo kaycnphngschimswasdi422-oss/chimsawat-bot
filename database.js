@@ -34,4 +34,14 @@ CREATE TABLE IF NOT EXISTS logs(
 )
 `).run();
 
+db.prepare(`
+CREATE TABLE IF NOT EXISTS shop(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    price INTEGER,
+    roleId TEXT,
+    description TEXT
+)
+`).run();
+
 module.exports = db;
