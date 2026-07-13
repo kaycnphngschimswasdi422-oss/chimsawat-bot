@@ -44,4 +44,13 @@ CREATE TABLE IF NOT EXISTS shop(
 )
 `).run();
 
+/* ระบบ Invite */
+
+db.prepare(`
+CREATE TABLE IF NOT EXISTS invite_history(
+    memberId TEXT PRIMARY KEY,
+    inviterId TEXT
+)
+`).run();
+
 module.exports = db;
