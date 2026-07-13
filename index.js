@@ -5,8 +5,8 @@ const path = require("path");
 
 const {
     Client,
-    GatewayIntentBits,
-    Collection
+    Collection,
+    GatewayIntentBits
 } = require("discord.js");
 
 require("./database");
@@ -15,23 +15,62 @@ const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent
     ]
 });
 
 client.commands = new Collection();
 
-const eventsPath = path.join(__dirname, "events");
+// โหลด Commands
+const commandFiles = fs.readdirSync("./commands").filter(f => f.endsWith(".js"));
 
-if (fs.existsSync(eventsPath)) {
-    const files = fs.readdirSync(eventsPath);
+for (const file of commandFiles) {
 
-    for (const file of files) {
-        const event = require(`./events/${file}`);
-        event(client);
-    }
+    const command = require(`./commands/${file}`);
+
+    client.commands.set(command.data.name, command);
+
 }
+
+// โหลด Events
+const eventFiles = fs.readdirSync("./events").filter(f => f.endsWith(".js"));
+
+for (const file of eventFiles) {
+
+    require(`./events/${file}`)(client);
+
+}
+
+// รับ Slash Command
+client.on("interactionCreate", async interaction => {
+
+    if (!interaction.isChatInputCommand()) return;
+
+    const command = client.commands.get(interaction.commandName);
+
+    if (!command) return;
+
+    try {
+
+        await command.execute(interaction);
+
+    } catch (err) {
+
+        console.error(err);
+
+        if (!interaction.replied) {
+
+            interaction.reply({
+                content: "เกิดข้อผิดพลาด",
+                ephemeral: true
+            });
+
+        }
+
+    }
+
+});
 
 client.login(process.env.TOKEN);
