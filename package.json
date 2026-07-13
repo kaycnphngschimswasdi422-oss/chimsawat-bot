@@ -1,14 +1,14 @@
 {
   "name": "chimsawat-bot",
   "version": "1.0.0",
-  "description": "Discord Bot for Chimsawat",
+  "description": "Discord Bot for Chimsawat Server",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "discord.js": "^14.18.0",
-    "better-sqlite3": "^11.7.0",
-    "dotenv": "^16.4.7"
+    "better-sqlite3": "^11.9.1",
+    "discord.js": "^14.21.0",
+    "dotenv": "^16.6.1"
   }
 }
