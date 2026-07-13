@@ -1,7 +1,6 @@
 require("dotenv").config();
 
 const fs = require("fs");
-const path = require("path");
 
 const {
     Client,
@@ -22,9 +21,13 @@ const client = new Client({
 });
 
 client.commands = new Collection();
+client.invites = new Map();
 
+// =======================
 // โหลด Commands
-const commandFiles = fs.readdirSync("./commands").filter(f => f.endsWith(".js"));
+// =======================
+
+const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
 
 for (const file of commandFiles) {
 
@@ -34,8 +37,11 @@ for (const file of commandFiles) {
 
 }
 
+// =======================
 // โหลด Events
-const eventFiles = fs.readdirSync("./events").filter(f => f.endsWith(".js"));
+// =======================
+
+const eventFiles = fs.readdirSync("./events").filter(file => file.endsWith(".js"));
 
 for (const file of eventFiles) {
 
@@ -43,8 +49,11 @@ for (const file of eventFiles) {
 
 }
 
-// รับ Slash Command
-client.on("interactionCreate", async interaction => {
+// =======================
+// Slash Commands
+// =======================
+
+client.on("interactionCreate", async (interaction) => {
 
     if (!interaction.isChatInputCommand()) return;
 
@@ -60,10 +69,10 @@ client.on("interactionCreate", async interaction => {
 
         console.error(err);
 
-        if (!interaction.replied) {
+        if (!interaction.replied && !interaction.deferred) {
 
-            interaction.reply({
-                content: "เกิดข้อผิดพลาด",
+            await interaction.reply({
+                content: "❌ เกิดข้อผิดพลาด",
                 ephemeral: true
             });
 
@@ -72,5 +81,43 @@ client.on("interactionCreate", async interaction => {
     }
 
 });
+
+// =======================
+// Ready
+// =======================
+
+client.once("ready", async () => {
+
+    console.clear();
+
+    console.log("==================================");
+    console.log("🤖 Chimsawat Bot");
+    console.log(`👤 Login : ${client.user.tag}`);
+    console.log(`🌐 Guilds : ${client.guilds.cache.size}`);
+    console.log("==================================");
+
+    for (const guild of client.guilds.cache.values()) {
+
+        try {
+
+            const invites = await guild.invites.fetch();
+
+            client.invites.set(guild.id, invites);
+
+            console.log(`✅ Invite Loaded : ${guild.name}`);
+
+        } catch (err) {
+
+            console.log(`⚠️ โหลด Invite ไม่ได้ : ${guild.name}`);
+
+        }
+
+    }
+
+});
+
+// =======================
+// Login
+// =======================
 
 client.login(process.env.TOKEN);
